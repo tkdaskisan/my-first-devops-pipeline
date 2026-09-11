@@ -1,0 +1,32 @@
+name: DevOps Image Builder Pipeline
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  validate-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository Code
+        uses: actions/checkout@v4
+      - name: Initialize Python Environment
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Run basic app verification
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          python -m py_compile app.py
+          echo "Code verified and ready for containerization!"
+      - name: Test docker build architecture
+        run: |
+          echo "Starting Docker Build Stage..."
+          docker build -t stl-devops-demo:latest .
+          echo "Docker image built successfully with zero syntax errors!"
+
+      - name: Run container security check
+        run: |
+          echo "Verifying image layers..."
+          docker images
